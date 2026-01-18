@@ -15,10 +15,7 @@ cd techscan
 bashpip install -r requirements.txt
 3. Run the web app
 bashpython app.py
-```
-
-**4. Open in browser**
-```
+4. Open in browser**
 http://localhost:5000
 
 Optional: Update to 6,000+ Technology Signatures
