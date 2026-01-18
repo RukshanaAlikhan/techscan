@@ -1,48 +1,25 @@
-# TechScan 🔍
+# TechScan 
+TechScan is a web security scanner that works in two steps: first, it analyzes any website URL you enter and detects what technologies are being used (like WordPress, jQuery, React, Nginx, PHP, etc.) by looking at HTTP headers, HTML patterns, scripts, and cookies - similar to how Wappalyzer works. Second, it takes those detected technologies and their versions and checks them against real-time CVE databases (OSV and NVD) to find known security vulnerabilities. The tool then calculates a risk score (0-100) based on the severity of vulnerabilities found (Critical, High, Medium, Low) and displays everything in a clean dark-themed web interface. It's essentially a "security health check" for any website - enter a URL, and instantly see what's running and if it's vulnerable.
 
-A security-focused technology stack analyzer that detects technologies, identifies versions, and assesses vulnerability risks.
 
-## What it does
+#Prerequisites
 
-1. **Detects** - Identifies technologies used by a website (frameworks, CMS, libraries, servers)
-2. **Versions** - Extracts version information where possible
-3. **Analyzes** - Checks for known vulnerabilities (CVEs)
-4. **Scores** - Provides an overall security risk assessment
+Python 3.8 or higher
+Git
 
-## Project Structure
-
-```
-techscan/
-├── techscan/
-│   ├── __init__.py
-│   ├── detector.py      # Tech detection logic
-│   ├── version.py       # Version extraction
-│   ├── vulns.py         # Vulnerability lookup
-│   └── scoring.py       # Risk scoring
-├── signatures/
-│   └── technologies.json # Tech fingerprints
-├── main.py              # CLI entry point
-├── requirements.txt
-└── README.md
+#Steps
+1. Clone the repository
+bashgit clone https://github.com/RukshanaAlikhan/techscan.git
+cd techscan
+2. Install dependencies
+bashpip install -r requirements.txt
+3. Run the web app
+bashpython app.py
 ```
 
-## Installation
-
-```bash
-pip install -r requirements.txt
+**4. Open in browser**
 ```
+http://localhost:5000
 
-## Usage
-
-```bash
-python main.py https://example.com
-```
-
-## Learning Goals
-
-This project teaches:
-- HTTP requests and response parsing
-- Pattern matching with regex
-- Working with APIs (NVD/CVE)
-- JSON data handling
-- Basic security concepts
+Optional: Update to 6,000+ Technology Signatures
+bashpython update_signatures.py
