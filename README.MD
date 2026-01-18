@@ -8,15 +8,11 @@ Python 3.8 or higher
 Git
 
 #Steps
-1. Clone the repository
-bashgit clone https://github.com/RukshanaAlikhan/techscan.git
+1. Clone the repository: git clone https://github.com/RukshanaAlikhan/techscan.git
 cd techscan
-2. Install dependencies
-bashpip install -r requirements.txt
-3. Run the web app
-bashpython app.py
-4. Open in browser**
-http://localhost:5000
+2. Install dependencies: pip install -r requirements.txt
+3. Run the web app: python app.py
+4. Open in browser: http://localhost:5000
 
 Optional: Update to 6,000+ Technology Signatures
 bashpython update_signatures.py
