@@ -1,0 +1,246 @@
+{
+    "_meta": {
+        "description": "Local vulnerability database for TechScan",
+        "last_updated": "2024-01-15",
+        "source": "NVD (National Vulnerability Database)",
+        "note": "In production, you'd query the NVD API in real-time"
+    },
+    "vulnerabilities": {
+        "jquery": [
+            {
+                "cve_id": "CVE-2020-11022",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "1.2.0",
+                    "max": "3.5.0"
+                },
+                "fixed_version": "3.5.0",
+                "description": "jQuery before 3.5.0 allows Cross-site Scripting (XSS) attacks when passing HTML containing <option> elements from untrusted sources.",
+                "published": "2020-04-29"
+            },
+            {
+                "cve_id": "CVE-2020-11023",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "1.0.3",
+                    "max": "3.5.0"
+                },
+                "fixed_version": "3.5.0",
+                "description": "jQuery before 3.5.0 allows XSS attacks when passing HTML from untrusted sources, even after sanitizing it.",
+                "published": "2020-04-29"
+            },
+            {
+                "cve_id": "CVE-2019-11358",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "1.0.0",
+                    "max": "3.4.0"
+                },
+                "fixed_version": "3.4.0",
+                "description": "jQuery before 3.4.0 mishandles jQuery.extend(true, {}, ...) because of Object.prototype pollution.",
+                "published": "2019-04-20"
+            }
+        ],
+        "wordpress": [
+            {
+                "cve_id": "CVE-2023-39999",
+                "severity": "medium",
+                "cvss_score": 4.3,
+                "affected_versions": {
+                    "min": "4.1.0",
+                    "max": "6.3.1"
+                },
+                "fixed_version": "6.3.2",
+                "description": "WordPress before 6.3.2 allows unauthorized access to post metadata.",
+                "published": "2023-10-12"
+            },
+            {
+                "cve_id": "CVE-2023-38000",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "4.1.0",
+                    "max": "6.2.2"
+                },
+                "fixed_version": "6.2.2",
+                "description": "WordPress before 6.2.2 is vulnerable to Stored Cross-Site Scripting via block themes.",
+                "published": "2023-07-12"
+            },
+            {
+                "cve_id": "CVE-2022-21661",
+                "severity": "high",
+                "cvss_score": 7.5,
+                "affected_versions": {
+                    "min": "3.7.0",
+                    "max": "5.8.3"
+                },
+                "fixed_version": "5.8.3",
+                "description": "WordPress before 5.8.3 allows SQL injection via WP_Query.",
+                "published": "2022-01-06"
+            }
+        ],
+        "angular": [
+            {
+                "cve_id": "CVE-2023-26116",
+                "severity": "medium",
+                "cvss_score": 5.3,
+                "affected_versions": {
+                    "min": "1.0.0",
+                    "max": "1.8.3"
+                },
+                "fixed_version": "1.8.3",
+                "description": "AngularJS 1.x (legacy) is vulnerable to Regular Expression Denial of Service (ReDoS).",
+                "published": "2023-03-30"
+            }
+        ],
+        "bootstrap": [
+            {
+                "cve_id": "CVE-2019-8331",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "3.0.0",
+                    "max": "4.3.1"
+                },
+                "fixed_version": "4.3.1",
+                "description": "Bootstrap before 4.3.1 allows XSS in the tooltip or popover data-template attribute.",
+                "published": "2019-02-20"
+            },
+            {
+                "cve_id": "CVE-2018-14041",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "2.0.0",
+                    "max": "4.1.2"
+                },
+                "fixed_version": "4.1.2",
+                "description": "Bootstrap before 4.1.2 allows XSS in the data-target property of scrollspy.",
+                "published": "2018-07-13"
+            }
+        ],
+        "vue": [
+            {
+                "cve_id": "CVE-2024-6783",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "2.0.0",
+                    "max": "2.7.16"
+                },
+                "fixed_version": "2.7.16",
+                "description": "Vue.js 2.x before 2.7.16 is vulnerable to XSS via the v-bind directive with object syntax.",
+                "published": "2024-07-15"
+            }
+        ],
+        "nginx": [
+            {
+                "cve_id": "CVE-2022-41741",
+                "severity": "high",
+                "cvss_score": 7.8,
+                "affected_versions": {
+                    "min": "1.0.0",
+                    "max": "1.23.2"
+                },
+                "fixed_version": "1.23.2",
+                "description": "NGINX before 1.23.2 allows memory corruption in the ngx_http_mp4_module.",
+                "published": "2022-10-19"
+            },
+            {
+                "cve_id": "CVE-2021-23017",
+                "severity": "critical",
+                "cvss_score": 9.8,
+                "affected_versions": {
+                    "min": "0.6.18",
+                    "max": "1.20.0"
+                },
+                "fixed_version": "1.20.1",
+                "description": "NGINX before 1.20.1 has a DNS resolver vulnerability allowing memory write via crafted response.",
+                "published": "2021-05-25"
+            }
+        ],
+        "php": [
+            {
+                "cve_id": "CVE-2023-3824",
+                "severity": "critical",
+                "cvss_score": 9.8,
+                "affected_versions": {
+                    "min": "8.0.0",
+                    "max": "8.0.29"
+                },
+                "fixed_version": "8.0.30",
+                "description": "PHP 8.0.x before 8.0.30 has a heap buffer overflow in phar_dir_read().",
+                "published": "2023-08-11"
+            },
+            {
+                "cve_id": "CVE-2023-0568",
+                "severity": "high",
+                "cvss_score": 8.1,
+                "affected_versions": {
+                    "min": "8.0.0",
+                    "max": "8.0.27"
+                },
+                "fixed_version": "8.0.28",
+                "description": "PHP before 8.0.28 allows path resolution bypass in core path resolution function.",
+                "published": "2023-02-16"
+            }
+        ],
+        "apache": [
+            {
+                "cve_id": "CVE-2023-43622",
+                "severity": "high",
+                "cvss_score": 7.5,
+                "affected_versions": {
+                    "min": "2.4.55",
+                    "max": "2.4.57"
+                },
+                "fixed_version": "2.4.58",
+                "description": "Apache HTTP Server before 2.4.58 allows DoS via HTTP/2 stream handling.",
+                "published": "2023-10-23"
+            },
+            {
+                "cve_id": "CVE-2023-25690",
+                "severity": "critical",
+                "cvss_score": 9.8,
+                "affected_versions": {
+                    "min": "2.4.0",
+                    "max": "2.4.55"
+                },
+                "fixed_version": "2.4.56",
+                "description": "Apache HTTP Server before 2.4.56 is vulnerable to HTTP Request Smuggling.",
+                "published": "2023-03-07"
+            }
+        ],
+        "react": [
+            {
+                "cve_id": "CVE-2018-6341",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "0.5.0",
+                    "max": "16.0.0"
+                },
+                "fixed_version": "16.0.1",
+                "description": "React before 16.0.1 allows XSS via the href attribute of an anchor element.",
+                "published": "2018-12-31"
+            }
+        ],
+        "express": [
+            {
+                "cve_id": "CVE-2024-29041",
+                "severity": "medium",
+                "cvss_score": 6.1,
+                "affected_versions": {
+                    "min": "4.0.0",
+                    "max": "4.19.2"
+                },
+                "fixed_version": "4.19.2",
+                "description": "Express.js before 4.19.2 allows open redirect via malformed URLs.",
+                "published": "2024-03-25"
+            }
+        ]
+    }
+}

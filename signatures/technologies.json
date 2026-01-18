@@ -1,0 +1,223 @@
+{
+    "technologies": {
+        "wordpress": {
+            "name": "WordPress",
+            "category": "CMS",
+            "website": "https://wordpress.org",
+            "detection": {
+                "headers": {},
+                "html": [
+                    "wp-content/",
+                    "wp-includes/",
+                    "/wp-json/"
+                ],
+                "meta": {
+                    "generator": "WordPress"
+                },
+                "scripts": [
+                    "wp-includes/js/",
+                    "wp-content/plugins/"
+                ]
+            },
+            "version_detection": {
+                "meta_generator": "WordPress ([\\d.]+)",
+                "file_paths": [
+                    "/feed/",
+                    "/readme.html"
+                ]
+            }
+        },
+        "jquery": {
+            "name": "jQuery",
+            "category": "JavaScript Library",
+            "website": "https://jquery.com",
+            "detection": {
+                "scripts": [
+                    "jquery.min.js",
+                    "jquery.js",
+                    "jquery-"
+                ]
+            },
+            "version_detection": {
+                "script_filename": "jquery[.-]([\\d.]+)(?:\\.min)?\\.js",
+                "script_content": "jQuery v([\\d.]+)"
+            }
+        },
+        "bootstrap": {
+            "name": "Bootstrap",
+            "category": "CSS Framework",
+            "website": "https://getbootstrap.com",
+            "detection": {
+                "html": [
+                    "bootstrap.min.css",
+                    "bootstrap.css"
+                ],
+                "scripts": [
+                    "bootstrap.min.js",
+                    "bootstrap.js",
+                    "bootstrap.bundle"
+                ]
+            },
+            "version_detection": {
+                "script_filename": "bootstrap[.-]([\\d.]+)(?:\\.min)?\\.js",
+                "css_filename": "bootstrap[.-]([\\d.]+)(?:\\.min)?\\.css"
+            }
+        },
+        "nginx": {
+            "name": "Nginx",
+            "category": "Web Server",
+            "website": "https://nginx.org",
+            "detection": {
+                "headers": {
+                    "server": "nginx"
+                }
+            },
+            "version_detection": {
+                "header": "nginx/([\\d.]+)"
+            }
+        },
+        "apache": {
+            "name": "Apache",
+            "category": "Web Server",
+            "website": "https://httpd.apache.org",
+            "detection": {
+                "headers": {
+                    "server": "Apache"
+                }
+            },
+            "version_detection": {
+                "header": "Apache/([\\d.]+)"
+            }
+        },
+        "php": {
+            "name": "PHP",
+            "category": "Programming Language",
+            "website": "https://php.net",
+            "detection": {
+                "headers": {
+                    "x-powered-by": "PHP"
+                }
+            },
+            "version_detection": {
+                "header": "PHP/([\\d.]+)"
+            }
+        },
+        "react": {
+            "name": "React",
+            "category": "JavaScript Framework",
+            "website": "https://reactjs.org",
+            "detection": {
+                "html": [
+                    "data-reactroot",
+                    "data-reactid",
+                    "_reactRootContainer"
+                ],
+                "scripts": [
+                    "react.min.js",
+                    "react.production.min.js",
+                    "react-dom"
+                ]
+            },
+            "version_detection": {
+                "script_content": "React v([\\d.]+)"
+            }
+        },
+        "vue": {
+            "name": "Vue.js",
+            "category": "JavaScript Framework",
+            "website": "https://vuejs.org",
+            "detection": {
+                "html": [
+                    "data-v-",
+                    "v-cloak",
+                    "__vue__"
+                ],
+                "scripts": [
+                    "vue.min.js",
+                    "vue.js",
+                    "vue.global"
+                ]
+            },
+            "version_detection": {
+                "script_filename": "vue[.-]([\\d.]+)(?:\\.min)?\\.js"
+            }
+        },
+        "angular": {
+            "name": "Angular",
+            "category": "JavaScript Framework",
+            "website": "https://angular.io",
+            "detection": {
+                "html": [
+                    "ng-version",
+                    "ng-app",
+                    "ng-controller",
+                    "_nghost",
+                    "_ngcontent"
+                ],
+                "scripts": [
+                    "angular.min.js",
+                    "angular.js"
+                ]
+            },
+            "version_detection": {
+                "html_attribute": "ng-version=\"([\\d.]+)\""
+            }
+        },
+        "cloudflare": {
+            "name": "Cloudflare",
+            "category": "CDN",
+            "website": "https://cloudflare.com",
+            "detection": {
+                "headers": {
+                    "cf-ray": "",
+                    "cf-cache-status": ""
+                }
+            },
+            "version_detection": {}
+        },
+        "google_analytics": {
+            "name": "Google Analytics",
+            "category": "Analytics",
+            "website": "https://analytics.google.com",
+            "detection": {
+                "scripts": [
+                    "google-analytics.com/analytics.js",
+                    "googletagmanager.com/gtag/js",
+                    "google-analytics.com/ga.js"
+                ],
+                "html": [
+                    "GoogleAnalyticsObject",
+                    "gtag("
+                ]
+            },
+            "version_detection": {}
+        },
+        "express": {
+            "name": "Express",
+            "category": "Web Framework",
+            "website": "https://expressjs.com",
+            "detection": {
+                "headers": {
+                    "x-powered-by": "Express"
+                }
+            },
+            "version_detection": {}
+        },
+        "laravel": {
+            "name": "Laravel",
+            "category": "Web Framework",
+            "website": "https://laravel.com",
+            "detection": {
+                "html": [
+                    "laravel",
+                    "csrf-token"
+                ],
+                "cookies": [
+                    "laravel_session",
+                    "XSRF-TOKEN"
+                ]
+            },
+            "version_detection": {}
+        }
+    }
+}
