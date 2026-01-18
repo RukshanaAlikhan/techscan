@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechScan - Security Vulnerability Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Animated background grid -->
+    <div class="bg-grid"></div>
+    
+    <!-- Scan lines effect -->
+    <div class="scan-lines"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">◈</span>
+                <h1>TECH<span class="highlight">SCAN</span></h1>
+            </div>
+            <p class="tagline">Real-time vulnerability detection powered by CVE databases</p>
+        </header>
+
+        <!-- Main Scanner Card -->
+        <main class="scanner-card">
+            <div class="card-header">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">SYSTEM READY</span>
+                </div>
+                <div class="mode-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="onlineMode" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Live CVE API</span>
+                </div>
+            </div>
+
+            <!-- URL Input -->
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <span class="input-prefix">https://</span>
+                    <input 
+                        type="text" 
+                        id="urlInput" 
+                        placeholder="Enter target URL (e.g., example.com)"
+                        autocomplete="off"
+                    >
+                    <button id="scanBtn" class="scan-button">
+                        <span class="btn-text">SCAN</span>
+                        <span class="btn-icon">→</span>
+                    </button>
+                </div>
+                <p class="input-hint">Press Enter or click SCAN to analyze</p>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state hidden">
+                <div class="loader">
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
+                    <div class="loader-ring"></div>
+                </div>
+                <p class="loading-text">
+                    <span id="loadingMessage">Initializing scan...</span>
+                </p>
+                <div class="loading-steps">
+                    <div class="step" id="step1">◇ Fetching target</div>
+                    <div class="step" id="step2">◇ Detecting technologies</div>
+                    <div class="step" id="step3">◇ Querying CVE databases</div>
+                    <div class="step" id="step4">◇ Analyzing vulnerabilities</div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state hidden">
+                <div class="error-icon">⚠</div>
+                <h3>Scan Failed</h3>
+                <p id="errorMessage">Unable to reach target</p>
+                <button id="retryBtn" class="retry-button">Try Again</button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section hidden">
+                <!-- Risk Score -->
+                <div class="risk-overview">
+                    <div class="risk-score-container">
+                        <svg class="risk-gauge" viewBox="0 0 200 200">
+                            <circle class="gauge-bg" cx="100" cy="100" r="80" />
+                            <circle class="gauge-fill" cx="100" cy="100" r="80" id="gaugeCircle" />
+                        </svg>
+                        <div class="risk-score-inner">
+                            <span class="risk-number" id="riskScore">0</span>
+                            <span class="risk-label">RISK SCORE</span>
+                        </div>
+                    </div>
+                    <div class="risk-details">
+                        <div class="risk-level" id="riskLevel">
+                            <span class="level-badge safe">SAFE</span>
+                        </div>
+                        <div class="risk-breakdown">
+                            <div class="breakdown-item critical">
+                                <span class="breakdown-count" id="criticalCount">0</span>
+                                <span class="breakdown-label">Critical</span>
+                            </div>
+                            <div class="breakdown-item high">
+                                <span class="breakdown-count" id="highCount">0</span>
+                                <span class="breakdown-label">High</span>
+                            </div>
+                            <div class="breakdown-item medium">
+                                <span class="breakdown-count" id="mediumCount">0</span>
+                                <span class="breakdown-label">Medium</span>
+                            </div>
+                            <div class="breakdown-item low">
+                                <span class="breakdown-count" id="lowCount">0</span>
+                                <span class="breakdown-label">Low</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technologies Found -->
+                <div class="technologies-section">
+                    <h3 class="section-title">
+                        <span class="title-icon">◈</span>
+                        Detected Technologies
+                        <span class="tech-count" id="techCount">0</span>
+                    </h3>
+                    <div class="technologies-grid" id="technologiesGrid">
+                        <!-- Technologies will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Vulnerabilities List -->
+                <div class="vulnerabilities-section" id="vulnsSection">
+                    <h3 class="section-title">
+                        <span class="title-icon">⚡</span>
+                        Vulnerabilities Found
+                        <span class="vuln-count" id="vulnCount">0</span>
+                    </h3>
+                    <div class="vulnerabilities-list" id="vulnerabilitiesList">
+                        <!-- Vulnerabilities will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Scan Again Button -->
+                <button id="newScanBtn" class="new-scan-button">
+                    <span>◇</span> New Scan
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by <strong>OSV</strong> & <strong>NVD</strong> vulnerability databases</p>
+            <div class="footer-links">
+                <a href="https://github.com/yourusername/techscan" target="_blank">GitHub</a>
+                <span class="divider">•</span>
+                <a href="#" id="aboutLink">About</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
