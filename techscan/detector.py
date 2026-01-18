@@ -1,15 +1,16 @@
 """
-detector.py - Technology Detection Module
+detector.py - Technology Detection Module (Enhanced)
 
-This module is responsible for:
-1. Fetching a webpage
-2. Analyzing headers, HTML, scripts, and meta tags
-3. Matching against our signature database
+This module detects technologies using Wappalyzer-compatible signatures.
+Supports 6,000+ technologies when using updated signatures.
 
-LEARNING NOTES:
-- We use 'requests' library to fetch web pages
-- BeautifulSoup helps us parse HTML easily
-- We look for "fingerprints" - unique patterns that identify technologies
+Detection methods:
+- HTTP headers
+- HTML content patterns
+- Script sources
+- Meta tags
+- Cookies
+- CSS patterns
 """
 
 import requests
@@ -21,109 +22,97 @@ from pathlib import Path
 
 class TechDetector:
     """
-    Main class for detecting technologies on a website.
-    
-    How it works:
-    1. Fetch the target URL
-    2. Extract useful data (headers, HTML, scripts, etc.)
-    3. Compare against known signatures
-    4. Return list of detected technologies
+    Enhanced technology detector supporting Wappalyzer signatures.
     """
     
     def __init__(self, signatures_path=None):
-        """
-        Initialize the detector with technology signatures.
-        
-        Args:
-            signatures_path: Path to the JSON file containing tech signatures
-        """
-        # If no path provided, use default location
+        """Initialize the detector with technology signatures."""
         if signatures_path is None:
-            # __file__ gives us this script's location
-            # We go up one level and into signatures folder
             base_dir = Path(__file__).parent.parent
             signatures_path = base_dir / "signatures" / "technologies.json"
         
-        # Load our signature database
         self.signatures = self._load_signatures(signatures_path)
-        
-        # Store results here
         self.detected_techs = []
         
-        # User-Agent header makes us look like a real browser
-        # Some websites block requests without this
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
         }
+        
+        print(f"📚 Loaded {len(self.signatures)} technology signatures")
     
     def _load_signatures(self, path):
-        """
-        Load technology signatures from JSON file.
-        
-        This is like loading a "dictionary" of fingerprints that help us
-        identify different technologies.
-        """
+        """Load technology signatures from JSON file."""
         try:
-            with open(path, 'r') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 return data.get('technologies', {})
         except FileNotFoundError:
-            print(f"Signatures file not found: {path}")
+            print(f"⚠️  Signatures file not found: {path}")
             return {}
-        except json.JSONDecodeError:
-            print(f"Invalid JSON in signatures file")
+        except json.JSONDecodeError as e:
+            print(f"⚠️  Invalid JSON in signatures file: {e}")
             return {}
     
     def scan(self, url):
         """
-        Main method - scan a URL for technologies.
+        Scan a URL for technologies.
         
         Args:
-            url: The website URL to scan (e.g., "https://example.com")
+            url: The website URL to scan
             
         Returns:
             dict: Scan results including detected technologies
         """
-        # Make sure URL has a scheme (http:// or https://)
         if not url.startswith(('http://', 'https://')):
             url = 'https://' + url
         
-        print(f"\n Scanning: {url}\n")
+        print(f"\n🔍 Scanning: {url}\n")
         
-        # Reset detected technologies
         self.detected_techs = []
         
         try:
-            # Step 1 Fetch the webpage
-            # timeout=10 means wait max 10 seconds for response
-            response = requests.get(url, headers=self.headers, timeout=10)
+            response = requests.get(
+                url, 
+                headers=self.headers, 
+                timeout=15,
+                allow_redirects=True,
+                verify=True
+            )
             
-            # Step 2 Parse the HTML content
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Step 3 Extract useful data for analysis
+            # Collect all script sources
+            scripts = []
+            for script in soup.find_all('script', src=True):
+                scripts.append(script.get('src', ''))
+            
+            # Collect all CSS links
+            css_links = []
+            for link in soup.find_all('link', rel='stylesheet'):
+                css_links.append(link.get('href', ''))
+            
             page_data = {
                 'url': url,
                 'status_code': response.status_code,
-                'headers': dict(response.headers),  # HTTP headers
-                'html': response.text,               # Raw HTML
-                'soup': soup,                        # Parsed HTML
-                'cookies': response.cookies.get_dict()  # Cookies
+                'headers': {k.lower(): v for k, v in response.headers.items()},
+                'html': response.text,
+                'soup': soup,
+                'cookies': response.cookies.get_dict(),
+                'scripts': scripts,
+                'css': css_links,
             }
             
-            # Step 4 Run detection for each technology
+            # Run detection
+            detected_count = 0
             for tech_id, tech_info in self.signatures.items():
-                if self._detect_technology(tech_id, tech_info, page_data):
-                    # Technology detected! Try to find version too
-                    version = self._detect_version(tech_id, tech_info, page_data)
-                    
-                    self.detected_techs.append({
-                        'id': tech_id,
-                        'name': tech_info.get('name', tech_id),
-                        'category': tech_info.get('category', 'Unknown'),
-                        'version': version,
-                        'website': tech_info.get('website', '')
-                    })
+                result = self._detect_technology(tech_id, tech_info, page_data)
+                if result:
+                    self.detected_techs.append(result)
+                    detected_count += 1
+            
+            print(f"✅ Detected {detected_count} technologies")
             
             return {
                 'url': url,
@@ -131,165 +120,178 @@ class TechDetector:
                 'technologies': self.detected_techs
             }
             
+        except requests.exceptions.Timeout:
+            return {'url': url, 'status': 'error', 'error': 'Connection timed out', 'technologies': []}
+        except requests.exceptions.SSLError:
+            return {'url': url, 'status': 'error', 'error': 'SSL certificate error', 'technologies': []}
+        except requests.exceptions.ConnectionError:
+            return {'url': url, 'status': 'error', 'error': 'Could not connect to server', 'technologies': []}
         except requests.exceptions.RequestException as e:
-            # Handle network errors gracefully
-            return {
-                'url': url,
-                'status': 'error',
-                'error': str(e),
-                'technologies': []
-            }
+            return {'url': url, 'status': 'error', 'error': str(e), 'technologies': []}
     
     def _detect_technology(self, tech_id, tech_info, page_data):
         """
-        Check if a specific technology is present on the page.
+        Check if a specific technology is present.
         
-        We check multiple indicators:
-        - HTTP headers (Server, X-Powered-By, etc.)
-        - HTML content (specific strings, patterns)
-        - Script tags (JavaScript libraries)
-        - Meta tags (generator, etc.)
-        - Cookies
-        
-        Returns True if technology is detected, False otherwise.
+        Returns tech dict if detected, None otherwise.
         """
         detection = tech_info.get('detection', {})
+        detected = False
+        confidence = 0
+        version = None
         
-        # Check 1: HTTP Headers
-        # Some servers reveal what they're running in headers
+        # Check Headers
         if 'headers' in detection:
-            for header_name, header_value in detection['headers'].items():
-                actual_value = page_data['headers'].get(header_name, '')
-                if header_value:
-                    # Looking for specific value in header
-                    if header_value.lower() in actual_value.lower():
-                        return True
-                else:
-                    # Just checking if header exists
-                    if header_name.lower() in [h.lower() for h in page_data['headers']]:
-                        return True
+            for header_name, pattern in detection['headers'].items():
+                header_value = page_data['headers'].get(header_name.lower(), '')
+                if self._match_pattern(pattern, header_value):
+                    detected = True
+                    confidence += 30
+                    version = version or self._extract_version(pattern, header_value)
         
-        # Check 2: HTML Content
-        # Look for specific strings in the HTML
+        # Check HTML patterns
         if 'html' in detection:
-            html_lower = page_data['html'].lower()
             for pattern in detection['html']:
-                if pattern.lower() in html_lower:
-                    return True
+                if self._match_pattern(pattern, page_data['html']):
+                    detected = True
+                    confidence += 20
+                    version = version or self._extract_version(pattern, page_data['html'])
         
-        # Check 3: Script Tags
-        # Check src attributes of <script> tags
+        # Check Script sources
         if 'scripts' in detection:
-            soup = page_data['soup']
-            script_tags = soup.find_all('script', src=True)
-            for script in script_tags:
-                src = script.get('src', '').lower()
-                for pattern in detection['scripts']:
-                    if pattern.lower() in src:
-                        return True
+            for pattern in detection['scripts']:
+                for script_src in page_data['scripts']:
+                    if self._match_pattern(pattern, script_src):
+                        detected = True
+                        confidence += 25
+                        version = version or self._extract_version(pattern, script_src)
         
-        # Check 4: Meta Tags
-        # e.g., <meta name="generator" content="WordPress 6.0">
+        # Check Meta tags
         if 'meta' in detection:
             soup = page_data['soup']
-            for meta_name, meta_value in detection['meta'].items():
+            for meta_name, pattern in detection['meta'].items():
                 meta_tag = soup.find('meta', attrs={'name': meta_name})
+                if not meta_tag:
+                    meta_tag = soup.find('meta', attrs={'property': meta_name})
                 if meta_tag:
                     content = meta_tag.get('content', '')
-                    if meta_value.lower() in content.lower():
-                        return True
+                    if self._match_pattern(pattern, content):
+                        detected = True
+                        confidence += 30
+                        version = version or self._extract_version(pattern, content)
         
-        # Check 5: Cookies
-        # Some frameworks set specific cookies
+        # Check Cookies
         if 'cookies' in detection:
-            for cookie_name in detection['cookies']:
-                if cookie_name.lower() in [c.lower() for c in page_data['cookies']]:
+            cookie_names = [c.lower() for c in page_data['cookies'].keys()]
+            for cookie_pattern in detection['cookies']:
+                if isinstance(cookie_pattern, str):
+                    if cookie_pattern.lower() in cookie_names:
+                        detected = True
+                        confidence += 20
+        
+        # Check CSS
+        if 'css' in detection:
+            for pattern in detection['css']:
+                # Check in CSS links
+                for css_link in page_data['css']:
+                    if self._match_pattern(pattern, css_link):
+                        detected = True
+                        confidence += 15
+                # Check in HTML (inline styles)
+                if self._match_pattern(pattern, page_data['html']):
+                    detected = True
+                    confidence += 10
+        
+        if detected:
+            return {
+                'id': tech_id,
+                'name': tech_info.get('name', tech_id),
+                'category': tech_info.get('category', 'Unknown'),
+                'version': version,
+                'website': tech_info.get('website', ''),
+                'confidence': min(confidence, 100),
+                'cpe': tech_info.get('cpe', ''),  # For CVE matching
+            }
+        
+        return None
+    
+    def _match_pattern(self, pattern, text):
+        """
+        Match a Wappalyzer-style pattern against text.
+        
+        Wappalyzer patterns can include:
+        - Regular text (case-insensitive match)
+        - Regex patterns
+        - Version extraction: \\;version:\\1
+        """
+        if not pattern or not text:
+            return False
+        
+        # Handle string patterns
+        if isinstance(pattern, str):
+            # Remove version extraction part for matching
+            clean_pattern = pattern.split('\\;')[0].split(';version:')[0]
+            
+            # If it looks like a regex
+            if any(c in clean_pattern for c in ['\\', '[', ']', '(', ')', '*', '+', '?', '^', '$', '|']):
+                try:
+                    return bool(re.search(clean_pattern, text, re.IGNORECASE))
+                except re.error:
+                    # Invalid regex, try literal match
+                    return clean_pattern.lower() in text.lower()
+            else:
+                # Simple string match
+                return clean_pattern.lower() in text.lower()
+        
+        # Handle dict patterns (Wappalyzer format)
+        elif isinstance(pattern, dict):
+            # Check if any key matches
+            for key, value in pattern.items():
+                if self._match_pattern(value, text):
                     return True
         
         return False
     
-    def _detect_version(self, tech_id, tech_info, page_data):
+    def _extract_version(self, pattern, text):
         """
-        Try to extract the version number of a detected technology.
+        Extract version number from text using Wappalyzer pattern.
         
-        This is trickier than detection - not all technologies expose versions.
-        
-        Common version sources:
-        - HTTP headers: "Server: nginx/1.18.0"
-        - Meta tags: <meta name="generator" content="WordPress 6.0">
-        - Script filenames: jquery-3.6.0.min.js
-        - Script content: /* jQuery v3.6.0 */
+        Patterns like: "jquery-([0-9.]+)\\.js\\;version:\\1"
         """
-        version_info = tech_info.get('version_detection', {})
-        
-        if not version_info:
+        if not pattern or not text:
             return None
         
-        # Try each version detection method
-        
-        # Method 1: From HTTP headers
-        if 'header' in version_info:
-            pattern = version_info['header']
-            # Check common headers that might contain version
-            for header_name in ['server', 'x-powered-by']:
-                header_value = page_data['headers'].get(header_name, '')
-                match = re.search(pattern, header_value, re.IGNORECASE)
+        if isinstance(pattern, str):
+            # Check for version extraction syntax
+            clean_pattern = pattern.split('\\;version:')[0].split(';version:')[0]
+            
+            # Try to find version in the pattern's capture group
+            try:
+                match = re.search(clean_pattern, text, re.IGNORECASE)
+                if match and match.groups():
+                    version = match.group(1)
+                    # Clean up version string
+                    version = re.sub(r'[^\d.]', '', version)
+                    if version and version[0].isdigit():
+                        return version
+            except (re.error, IndexError):
+                pass
+            
+            # Fallback: try common version patterns
+            version_patterns = [
+                r'[/\-_]v?(\d+\.\d+(?:\.\d+)?)',  # /v1.2.3, -1.2.3
+                r'version["\s:=]+["\']?(\d+\.\d+(?:\.\d+)?)',  # version: "1.2.3"
+            ]
+            
+            for vp in version_patterns:
+                match = re.search(vp, text, re.IGNORECASE)
                 if match:
                     return match.group(1)
-        
-        # Method 2: From meta generator tag
-        if 'meta_generator' in version_info:
-            pattern = version_info['meta_generator']
-            soup = page_data['soup']
-            meta_tag = soup.find('meta', attrs={'name': 'generator'})
-            if meta_tag:
-                content = meta_tag.get('content', '')
-                match = re.search(pattern, content, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-        
-        # Method 3: From script filename
-        if 'script_filename' in version_info:
-            pattern = version_info['script_filename']
-            soup = page_data['soup']
-            script_tags = soup.find_all('script', src=True)
-            for script in script_tags:
-                src = script.get('src', '')
-                match = re.search(pattern, src, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-        
-        # Method 4: From CSS filename
-        if 'css_filename' in version_info:
-            pattern = version_info['css_filename']
-            soup = page_data['soup']
-            link_tags = soup.find_all('link', rel='stylesheet')
-            for link in link_tags:
-                href = link.get('href', '')
-                match = re.search(pattern, href, re.IGNORECASE)
-                if match:
-                    return match.group(1)
-        
-        # Method 5: From HTML attributes (like ng-version for Angular)
-        if 'html_attribute' in version_info:
-            pattern = version_info['html_attribute']
-            match = re.search(pattern, page_data['html'])
-            if match:
-                return match.group(1)
         
         return None
-
-
+    
     def scan_demo(self, demo_name):
-        """
-        Scan a demo site (for testing without network).
-        
-        Args:
-            demo_name: Name of demo site ('wordpress', 'react', etc.)
-            
-        Returns:
-            dict: Scan results
-        """
+        """Scan a demo site (for testing without network)."""
         from .demo import get_demo_site, list_demo_sites
         
         demo_data = get_demo_site(demo_name)
@@ -304,34 +306,28 @@ class TechDetector:
         
         print(f"\n🔍 Scanning demo site: {demo_name}\n")
         
-        # Reset detected technologies
         self.detected_techs = []
         
-        # Parse HTML for the demo
         soup = BeautifulSoup(demo_data['html'], 'html.parser')
         
-        # Build page_data from demo
+        scripts = [s.get('src', '') for s in soup.find_all('script', src=True)]
+        css_links = [l.get('href', '') for l in soup.find_all('link', rel='stylesheet')]
+        
         page_data = {
             'url': f'demo://{demo_name}',
             'status_code': 200,
-            'headers': demo_data['headers'],
+            'headers': {k.lower(): v for k, v in demo_data['headers'].items()},
             'html': demo_data['html'],
             'soup': soup,
-            'cookies': demo_data.get('cookies', {})
+            'cookies': demo_data.get('cookies', {}),
+            'scripts': scripts,
+            'css': css_links,
         }
         
-        # Run detection
         for tech_id, tech_info in self.signatures.items():
-            if self._detect_technology(tech_id, tech_info, page_data):
-                version = self._detect_version(tech_id, tech_info, page_data)
-                
-                self.detected_techs.append({
-                    'id': tech_id,
-                    'name': tech_info.get('name', tech_id),
-                    'category': tech_info.get('category', 'Unknown'),
-                    'version': version,
-                    'website': tech_info.get('website', '')
-                })
+            result = self._detect_technology(tech_id, tech_info, page_data)
+            if result:
+                self.detected_techs.append(result)
         
         return {
             'url': f'demo://{demo_name}',
@@ -340,15 +336,13 @@ class TechDetector:
         }
 
 
-# This allows us to test the module directly
 if __name__ == "__main__":
-    # Quick test with demo mode
     detector = TechDetector()
     
-    print("Testing with demo WordPress site...")
+    print("\nTesting with demo WordPress site...")
     result = detector.scan_demo("wordpress")
     
-    print("\n📋 Results:")
+    print(f"\n📋 Results ({len(result['technologies'])} technologies):")
     for tech in result['technologies']:
         version_str = f" v{tech['version']}" if tech['version'] else ""
-        print(f"  • {tech['name']}{version_str} ({tech['category']})")
+        print(f"  • {tech['name']}{version_str} ({tech['category']}) - {tech['confidence']}% confidence")
