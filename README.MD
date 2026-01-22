@@ -15,4 +15,4 @@ cd techscan
 4. Open in browser: http://localhost:5000
 
 Optional: Update to 6,000+ Technology Signatures
-bashpython update_signatures.py
+python update_signatures.py
